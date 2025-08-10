@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id                          String    @id @default(cuid())
+  name                        String
+  email                       String    @unique
+  password                    String
+  role                        Role
+  passwordResetToken          String?
+  passwordChangedAt           DateTime?
+  passwordResetTokenExpiresAt DateTime?
+  isActive                    Boolean   @default(true)
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+  deletedAt                   DateTime?
+}
+
+model User {
+  id                          String    @id @default(cuid())
+  name                        String
+  email                       String    @unique
+  pendingEmail                String?
+  phone                       String?
+  password                    String
+  role                        Role
+  passwordResetToken          String?
+  passwordChangedAt           DateTime?
+  passwordResetTokenExpiresAt DateTime?
+  isVerified                  Boolean   @default(false)
+  verificationToken           String?
+  verificationTokenExpiresAt  DateTime?
+  kycId                       String?   @unique
+  kyc                         KYC?      @relation(fields: [kycId], references: [id])
+  isKycComplete               Boolean   @default(false)
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+}
+
+model KYC {
+  id                String      @id @default(cuid())
+  user              User?       @relation
+  bankAccountName   String
+  bankName          String
+  accountType       AccountType
+  accountNumber     String
+  ifscCode          String
+  panNumber         String
+  gstNumber         String?
+  gstRegistered     Boolean     @default(false)
+  bankDetailsUrl    String
+  panCardUrl        String
+  gstCertificateUrl String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+}
+
+enum Role {
+  SUPER_ADMIN
+  OPERATOR
+  VENDOR
+  INDIVIDUAL
+}
