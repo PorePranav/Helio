@@ -21,6 +21,8 @@ model Admin {
   createdAt                   DateTime  @default(now())
   updatedAt                   DateTime  @updatedAt
   deletedAt                   DateTime?
+  Form                        Form[]
+  Claim                       Claim[]
 }
 
 model User {
@@ -42,6 +44,8 @@ model User {
   isKycComplete               Boolean   @default(false)
   createdAt                   DateTime  @default(now())
   updatedAt                   DateTime  @updatedAt
+  Form                        Form[]
+  Claim                       Claim[]
 }
 
 model KYC {
@@ -60,6 +64,114 @@ model KYC {
   gstCertificateUrl String?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+}
+
+model CostCenter {
+  id         String   @id @default(cuid())
+  costCenter String   @unique
+  forms      Form[]
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+}
+
+model AccountHead {
+  id          String   @id @default(cuid())
+  accountHead String   @unique
+  forms       Form[]
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model GstState {
+  id        String   @id @default(cuid())
+  gstState  String   @unique
+  forms     Form[]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  location    String
+  date        DateTime
+  description String?
+  forms       Form[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Form {
+  id                    String       @id @default(cuid())
+  eventId               String
+  event                 Event        @relation(fields: [eventId], references: [id])
+  userId                String
+  user                  User         @relation(fields: [userId], references: [id])
+  claims                Claim[]
+  totalClaimAmount      Float        @default(0)
+  costCenterId          String?
+  costCenter            CostCenter?  @relation(fields: [costCenterId], references: [id])
+  accountHeadId         String?
+  accountHead           AccountHead? @relation(fields: [accountHeadId], references: [id])
+  formStatus            FormStatus   @default(INREVIEW)
+  voucherNumber         String?
+  paymentDate           DateTime?
+  bankReferenceNumber   String?
+  totalSanctionedAmount Float        @default(0)
+  totalPaidAmount       Float        @default(0)
+  gstStateId            String?
+  gstState              GstState?    @relation(fields: [gstStateId], references: [id])
+  payerId               String?
+  payer                 Admin?       @relation(fields: [payerId], references: [id])
+  invoiceType           InvoiceType
+  validatedAt           DateTime?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+}
+
+model Claim {
+  id                 String      @id @default(cuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id])
+  date               DateTime
+  amount             Float
+  remarks            String?
+  formId             String
+  form               Form        @relation(fields: [formId], references: [id])
+  claimStatus        ClaimStatus @default(INREVIEW)
+  validatorId        String?
+  validator          Admin?      @relation(fields: [validatorId], references: [id])
+  validatedAt        DateTime?
+  reasonForRejection String?
+  reasonForRework    String?
+  billUrl            String
+  isGstApplicable    Boolean     @default(false)
+  gstAmount          Float       @default(0)
+  isTdsApplicable    Boolean     @default(false)
+  tdsAmount          Float       @default(0)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+enum FormStatus {
+  INREVIEW
+  REWORKNEEDED
+  APPROVED
+  PARTIALLYAPPROVED
+  PAID
+  REJECTED
+}
+
+enum ClaimStatus {
+  INREVIEW
+  REWORKNEEDED
+  APPROVED
+  REJECTED
+}
+
+enum InvoiceType {
+  PROFORMA
+  FINAL
 }
 
 enum AccountType {

@@ -39,7 +39,7 @@ export const createKycSchema = z
   })
   .refine(
     (data) => {
-      if (data.gstRegistered) return !!data.gstNumber;
+      if (data.gstRegistered || data.gstNumber) return !!data.gstNumber;
       return true;
     },
     {
