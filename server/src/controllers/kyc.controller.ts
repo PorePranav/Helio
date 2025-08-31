@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
 import prisma from '../utils/prisma';
+import { createSendToken } from '../utils/authUtils';
 
 export const submitKyc = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -36,15 +37,12 @@ export const submitKyc = catchAsync(
       }),
     ]);
 
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { kycId: newKyc.id },
     });
 
-    res.status(201).json({
-      status: 'success',
-      data: { kyc: newKyc },
-    });
+    createSendToken(updatedUser, 201, res);
   }
 );
 
