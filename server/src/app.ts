@@ -10,6 +10,7 @@ import adminAuthRoutes from './routers/authRoutes/adminAuth.routes';
 import userAuthRoutes from './routers/authRoutes/userAuth.routes';
 import adminRoutes from './routers/admin.routes';
 import kycRoutes from './routers/kyc.routes';
+import eventRoutes from './routers/event.routes';
 
 const app = express();
 app.use(cookieParser());
@@ -21,6 +22,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/auth/admin', adminAuthRoutes);
 app.use('/api/v1/auth', userAuthRoutes);
 app.use('/api/v1/kyc', kycRoutes);
+app.use('/api/v1/events', eventRoutes);
 
 app.all('/{*splat}', (req: Request, res: Response, next: NextFunction) => {
   return next(

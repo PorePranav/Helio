@@ -5,18 +5,21 @@ import AppError from './AppError';
 
 interface CrudConfig {
   modelName: string;
-  fieldName: string;
+  fieldName?: string;
   selectFields?: Record<string, boolean>;
   transformInput?: (input: any) => any;
 }
 
 export const createCrudFactory = (config: CrudConfig) => {
   const { modelName, fieldName, selectFields, transformInput } = config;
-  const defaultSelectFields = selectFields || { id: true, [fieldName]: true };
+  const defaultSelectFields =
+    selectFields ||
+    (fieldName ? { id: true, [fieldName]: true } : { id: true });
 
   const getAll = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const records = await (prisma as any)[modelName].findMany({
+        where: { deletedAt: null },
         orderBy: { createdAt: 'desc' },
         select: defaultSelectFields,
       });
@@ -34,7 +37,7 @@ export const createCrudFactory = (config: CrudConfig) => {
       const recordId = req.params[`${modelName}Id`];
 
       const record = await (prisma as any)[modelName].findUnique({
-        where: { id: recordId },
+        where: { id: recordId, deletedAt: null },
         select: defaultSelectFields,
       });
 
@@ -50,16 +53,21 @@ export const createCrudFactory = (config: CrudConfig) => {
 
   const create = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const fieldValue = req.body[fieldName];
+      let inputData: any;
 
-      const processedValue = transformInput
-        ? transformInput(fieldValue)
-        : fieldValue?.toLowerCase?.() || fieldValue;
+      if (fieldName) {
+        const fieldValue = req.body[fieldName];
+        inputData = {
+          [fieldName]: transformInput
+            ? transformInput(fieldValue)
+            : fieldValue?.toLowerCase?.() || fieldValue,
+        };
+      } else {
+        inputData = transformInput ? transformInput(req.body) : req.body;
+      }
 
       const newRecord = await (prisma as any)[modelName].create({
-        data: {
-          [fieldName]: processedValue,
-        },
+        data: inputData,
       });
 
       res.status(201).json({
@@ -72,15 +80,22 @@ export const createCrudFactory = (config: CrudConfig) => {
   const update = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const recordId = req.params[`${modelName}Id`];
-      const fieldValue = req.body[fieldName];
+      let inputData: any;
 
-      const processedValue = transformInput
-        ? transformInput(fieldValue)
-        : fieldValue?.toLowerCase?.() || fieldValue;
+      if (fieldName) {
+        const fieldValue = req.body[fieldName];
+        inputData = {
+          [fieldName]: transformInput
+            ? transformInput(fieldValue)
+            : fieldValue?.toLowerCase?.() || fieldValue,
+        };
+      } else {
+        inputData = transformInput ? transformInput(req.body) : req.body;
+      }
 
       const updatedRecord = await (prisma as any)[modelName].update({
         where: { id: recordId },
-        data: { [fieldName]: processedValue },
+        data: inputData,
       });
 
       res.status(200).json({
@@ -94,8 +109,9 @@ export const createCrudFactory = (config: CrudConfig) => {
     async (req: Request, res: Response, next: NextFunction) => {
       const recordId = req.params[`${modelName}Id`];
 
-      await (prisma as any)[modelName].delete({
+      await (prisma as any)[modelName].update({
         where: { id: recordId },
+        data: { deletedAt: new Date() },
       });
 
       res.status(204).json({

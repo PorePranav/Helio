@@ -67,38 +67,42 @@ model KYC {
 }
 
 model CostCenter {
-  id         String   @id @default(cuid())
-  costCenter String   @unique
+  id         String    @id @default(cuid())
+  costCenter String    @unique
   forms      Form[]
-  updatedAt  DateTime @updatedAt
-  createdAt  DateTime @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
 }
 
 model AccountHead {
-  id          String   @id @default(cuid())
-  accountHead String   @unique
+  id          String    @id @default(cuid())
+  accountHead String    @unique
   forms       Form[]
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
 }
 
 model GstState {
-  id        String   @id @default(cuid())
-  gstState  String   @unique
+  id        String    @id @default(cuid())
+  gstState  String    @unique
   forms     Form[]
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
 }
 
 model Event {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   location    String
   date        DateTime
   description String?
   forms       Form[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 }
 
 model Form {
