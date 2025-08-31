@@ -114,6 +114,7 @@ export const loginUser = catchAsync(
 
 export const getMeUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log('In get me user');
     const fetchedUser = await prisma.user.findUnique({
       where: { id: req.user!.id },
       select: {

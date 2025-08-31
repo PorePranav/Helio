@@ -107,12 +107,11 @@ model Event {
 
 model Form {
   id                    String       @id @default(cuid())
-  eventId               String
-  event                 Event        @relation(fields: [eventId], references: [id])
+  eventId               String?
+  event                 Event?      @relation(fields: [eventId], references: [id])
   userId                String
   user                  User         @relation(fields: [userId], references: [id])
   claims                Claim[]
-  totalClaimAmount      Float        @default(0)
   costCenterId          String?
   costCenter            CostCenter?  @relation(fields: [costCenterId], references: [id])
   accountHeadId         String?
@@ -121,13 +120,13 @@ model Form {
   voucherNumber         String?
   paymentDate           DateTime?
   bankReferenceNumber   String?
+  totalClaimAmount      Float        @default(0)
   totalSanctionedAmount Float        @default(0)
   totalPaidAmount       Float        @default(0)
   gstStateId            String?
   gstState              GstState?    @relation(fields: [gstStateId], references: [id])
   payerId               String?
   payer                 Admin?       @relation(fields: [payerId], references: [id])
-  invoiceType           InvoiceType
   validatedAt           DateTime?
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
@@ -139,6 +138,7 @@ model Claim {
   user               User        @relation(fields: [userId], references: [id])
   date               DateTime
   amount             Float
+  invoiceType       InvoiceType 
   remarks            String?
   formId             String
   form               Form        @relation(fields: [formId], references: [id])

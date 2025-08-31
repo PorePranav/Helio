@@ -29,7 +29,7 @@ router.patch(
   resetPasswordAdmin
 );
 
-router.use(protectRoute);
+router.use(protectRoute(false));
 
 router.patch(
   '/changePassword',

@@ -20,7 +20,6 @@ import {
   createCostCenterSchema,
   createGstStateSchema,
 } from '../validators/adminOperationsValidations';
-import { create } from 'domain';
 
 const costCenterCrud = createCrudFactory({
   modelName: 'costCenter',
@@ -44,12 +43,18 @@ const router = Router();
 
 router.post('/signup', validateBody(signupAdminSchema), signupAdmin);
 
-router.use(protectRoute);
+router.use(protectRoute(false));
 router.get('/user/list', restrictTo(Role.SUPER_ADMIN), getUsers);
 
 router.use(restrictTo(Role.SUPER_ADMIN, Role.OPERATOR));
 router.get('/user/kyc/:userId', getUserKyc);
 router.get('/user/:userId', getUser);
+router.get('/costCenter/:costCenterId', costCenterCrud.getOne);
+router.get('/costCenter', costCenterCrud.getAll);
+router.get('/accountHead/:accountHeadId', accountHeadCrud.getOne);
+router.get('/accountHead', accountHeadCrud.getAll);
+router.get('/gstState/:gstStateId', gstStateCrud.getOne);
+router.get('/gstState', gstStateCrud.getAll);
 
 router.use(restrictTo(Role.SUPER_ADMIN));
 
@@ -62,8 +67,6 @@ router.delete('/admin/:adminId', deleteAdmin);
 /**
  * Cost Center Routes
  */
-router.get('/costCenter/:costCenterId', costCenterCrud.getOne);
-router.get('/costCenter', costCenterCrud.getAll);
 router.post(
   '/costCenter',
   validateBody(createCostCenterSchema),
@@ -79,8 +82,6 @@ router.delete('/costCenter/:costCenterId', costCenterCrud.delete);
 /*
  * Account Head Routes
  */
-router.get('/accountHead/:accountHeadId', accountHeadCrud.getOne);
-router.get('/accountHead', accountHeadCrud.getAll);
 router.post(
   '/accountHead',
   validateBody(createAccountHeadSchema),
@@ -96,8 +97,6 @@ router.delete('/accountHead/:accountHeadId', accountHeadCrud.delete);
 /**
  * GST State Routes
  */
-router.get('/gstState/:gstStateId', gstStateCrud.getOne);
-router.get('/gstState', gstStateCrud.getAll);
 router.post(
   '/gstState',
   validateBody(createGstStateSchema),

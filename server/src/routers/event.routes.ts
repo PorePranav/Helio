@@ -27,7 +27,7 @@ const eventCrud = createCrudFactory({
   }),
 });
 
-router.use(protectRoute);
+router.use(protectRoute());
 router.get('/', eventCrud.getAll);
 router.get('/:eventId', eventCrud.getOne);
 

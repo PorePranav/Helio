@@ -45,7 +45,9 @@ router.patch(
 router.patch('/verifyUser', verifyUserEmail);
 router.post('/resendVerification', normalizeEmail, resendVerificationEmail);
 
-router.use(protectRoute);
+router.use(protectRoute(false));
+router.get('/logout', logout);
+router.get('/me', getMeUser);
 router.patch(
   '/changePassword',
   validateBody(changePasswordSchema),
@@ -57,7 +59,5 @@ router.patch(
   validateBody(updateUserEmailSchema),
   updateUserEmail
 );
-router.get('/logout', logout);
-router.get('/me', getMeUser);
 
 export default router;

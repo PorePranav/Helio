@@ -47,8 +47,8 @@ export const createSendToken = (
   });
 };
 
-export const protectRoute = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+export const protectRoute = (requireKyc = true) =>
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.jwt;
 
     if (!token || token === null)
@@ -61,14 +61,18 @@ export const protectRoute = catchAsync(
       process.env.JWT_SECRET as string
     )) as CustomJwtPayload;
 
-    if (decodedUser.isKycCompleted === false)
-      return next(new AppError('KYC is not completed', 403));
+    if (
+      requireKyc &&
+      (decodedUser.role === Role.INDIVIDUAL ||
+        decodedUser.role === Role.VENDOR) &&
+      !decodedUser.isKycComplete
+    )
+      return next(new AppError('KYC is not done', 403));
 
     req.user = decodedUser as CustomJwtPayload;
 
     next();
-  }
-);
+  });
 
 export const restrictTo = (...roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {

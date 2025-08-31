@@ -7,14 +7,15 @@ import { Role } from '../generated/prisma';
 
 const router = Router();
 
-router.use(protectRoute);
 router.post(
   '/submitKyc',
+  protectRoute(false),
   restrictTo(Role.VENDOR, Role.INDIVIDUAL),
   validateBody(createKycSchema),
   submitKyc
 );
 
+router.use(protectRoute);
 router.patch(
   '/updateKyc',
   restrictTo(Role.SUPER_ADMIN),
